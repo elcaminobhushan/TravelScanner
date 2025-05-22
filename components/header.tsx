@@ -1,16 +1,18 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useContext } from "react"
 import Link from "next/link"
-import { Search, Menu, X } from "lucide-react"
+import { Search, Menu, X, ShoppingBag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { CompareContext } from "@/context/compare-context"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const pathname = usePathname()
+  const { packagesToCompare } = useContext(CompareContext)
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -59,6 +61,19 @@ export default function Header() {
               />
             </div>
 
+            {/* Compare button */}
+            {packagesToCompare.length > 0 && (
+              <Link href="/compare">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <ShoppingBag className="h-4 w-4" />
+                  <span>Compare</span>
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-600 text-xs text-white">
+                    {packagesToCompare.length}
+                  </span>
+                </Button>
+              </Link>
+            )}
+
             {/* Mobile menu button */}
             <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleMenu} aria-label="Toggle menu">
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -89,6 +104,17 @@ export default function Header() {
                   {item.name}
                 </Link>
               ))}
+
+              {packagesToCompare.length > 0 && (
+                <Link
+                  href="/compare"
+                  className="flex items-center gap-2 text-sm font-medium text-teal-600"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <ShoppingBag className="h-4 w-4" />
+                  <span>Compare ({packagesToCompare.length})</span>
+                </Link>
+              )}
             </nav>
           </div>
         </div>

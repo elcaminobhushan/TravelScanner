@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import ComparisonTable from "@/components/comparison-table"
 import VisualCharts from "@/components/visual-charts"
 import PackageSelection from "@/components/package-selection"
@@ -16,6 +16,7 @@ import { holidayPackages } from "@/data/holiday-packages"
 
 export default function ComparePage() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const [selectedPackages, setSelectedPackages] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState("table")
   const [hoveredPackage, setHoveredPackage] = useState<string | null>(null)
@@ -48,6 +49,13 @@ export default function ComparePage() {
           setSelectedPackages([...selectedPackages, packageToAdd])
         }
       }
+    }
+  }
+
+  const handleCompare = () => {
+    if (selectedPackages.length > 0) {
+      const ids = selectedPackages.map((pkg) => pkg.id).join(",")
+      router.push(`/compare?ids=${ids}`)
     }
   }
 
@@ -156,9 +164,10 @@ export default function ComparePage() {
                       ✕
                     </Button>
                   </div>
-                  <p className="text-sm text-muted-foreground">{pkg.location}</p>
+                  <p className="text-sm text-muted-foreground">{pkg.destination}</p>
                   <div className="mt-2 text-sm">
-                    <span className="font-semibold">${pkg.price}</span> per person
+                    <span className="font-semibold">${pkg.totalPrice || pkg.price}</span>{" "}
+                    {pkg.priceType || "per person"}
                   </div>
                 </div>
               ))}

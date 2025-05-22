@@ -5,175 +5,117 @@ import type React from "react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { useToast } from "@/hooks/use-toast"
+import { Label } from "@/components/ui/label"
+import { Phone } from "lucide-react"
+import { DialogFooter } from "@/components/ui/dialog"
 
 export default function ContactForm() {
-  const { toast } = useToast()
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
     phone: "",
-    subject: "",
+    email: "",
     message: "",
+    bestTimeToCall: "anytime",
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
-
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev }
-        delete newErrors[name]
-        return newErrors
-      })
-    }
-  }
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {}
-
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required"
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required"
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid"
-    }
-
-    if (!formData.subject.trim()) {
-      newErrors.subject = "Subject is required"
-    }
-
-    if (!formData.message.trim()) {
-      newErrors.message = "Message is required"
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (!validateForm()) {
-      toast({
-        title: "Form validation failed",
-        description: "Please check the form for errors",
-        variant: "destructive",
-      })
-      return
-    }
-
     setIsSubmitting(true)
 
-    // Simulate API call
+    // Simulate form submission
     setTimeout(() => {
-      toast({
-        title: "Message sent successfully!",
-        description: "We'll get back to you as soon as possible.",
-      })
+      console.log("Form submitted:", formData)
+      setIsSubmitting(false)
       setFormData({
         name: "",
-        email: "",
         phone: "",
-        subject: "",
+        email: "",
         message: "",
+        bestTimeToCall: "anytime",
       })
-      setIsSubmitting(false)
-    }, 1500)
+      alert("Thank you! Our travel expert will call you back shortly.")
+    }, 1000)
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="name">
-            Name <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Your name"
-            className={errors.name ? "border-red-500" : ""}
-          />
-          {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="email">
-            Email <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="Your email"
-            className={errors.email ? "border-red-500" : ""}
-          />
-          {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
-        </div>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="phone">Phone (optional)</Label>
-          <Input
-            id="phone"
-            name="phone"
-            type="tel"
-            value={formData.phone}
-            onChange={handleChange}
-            placeholder="Your phone number"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="subject">
-            Subject <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            id="subject"
-            name="subject"
-            value={formData.subject}
-            onChange={handleChange}
-            placeholder="Subject of your message"
-            className={errors.subject ? "border-red-500" : ""}
-          />
-          {errors.subject && <p className="text-sm text-red-500">{errors.subject}</p>}
-        </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="name">Your Name</Label>
+        <Input id="name" name="name" value={formData.name} onChange={handleChange} placeholder="John Doe" required />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="message">
-          Message <span className="text-red-500">*</span>
-        </Label>
+        <Label htmlFor="phone">Phone Number</Label>
+        <Input
+          id="phone"
+          name="phone"
+          type="tel"
+          value={formData.phone}
+          onChange={handleChange}
+          placeholder="+1 (555) 123-4567"
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="email">Email Address</Label>
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          value={formData.email}
+          onChange={handleChange}
+          placeholder="john@example.com"
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="bestTimeToCall">Best Time to Call</Label>
+        <select
+          id="bestTimeToCall"
+          name="bestTimeToCall"
+          value={formData.bestTimeToCall}
+          onChange={handleChange}
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          <option value="anytime">Anytime</option>
+          <option value="morning">Morning (9AM - 12PM)</option>
+          <option value="afternoon">Afternoon (12PM - 5PM)</option>
+          <option value="evening">Evening (5PM - 8PM)</option>
+        </select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="message">Message (Optional)</Label>
         <Textarea
           id="message"
           name="message"
           value={formData.message}
           onChange={handleChange}
-          placeholder="Your message"
-          rows={6}
-          className={errors.message ? "border-red-500" : ""}
+          placeholder="Tell us about your travel plans or any specific questions..."
+          rows={3}
         />
-        {errors.message && <p className="text-sm text-red-500">{errors.message}</p>}
       </div>
 
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? "Sending..." : "Send Message"}
-      </Button>
+      <DialogFooter>
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? (
+            "Submitting..."
+          ) : (
+            <>
+              <Phone className="mr-2 h-4 w-4" /> Request Call Back
+            </>
+          )}
+        </Button>
+      </DialogFooter>
     </form>
   )
 }

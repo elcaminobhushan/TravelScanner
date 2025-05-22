@@ -23,12 +23,15 @@ export default function PackageSelection({ packages, selectedPackages, onPackage
     // Filter by search term
     const matchesSearch =
       searchTerm === "" ||
-      pkg.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pkg.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pkg.type.toLowerCase().includes(searchTerm.toLowerCase())
+      pkg.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      pkg.destination?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (pkg.packageTypes &&
+        pkg.packageTypes.some((type: string) => type.toLowerCase().includes(searchTerm.toLowerCase())))
 
     // Filter by tab
-    const matchesTab = activeTab === "all" || pkg.type === activeTab
+    const matchesTab =
+      activeTab === "all" ||
+      (pkg.packageTypes && pkg.packageTypes.some((type: string) => type.toLowerCase() === activeTab.toLowerCase()))
 
     return matchesSearch && matchesTab
   })
@@ -62,9 +65,10 @@ export default function PackageSelection({ packages, selectedPackages, onPackage
             <TabsList>
               <TabsTrigger value="all">All</TabsTrigger>
               <TabsTrigger value="beach">Beach</TabsTrigger>
-              <TabsTrigger value="city">City</TabsTrigger>
+              <TabsTrigger value="cultural">Cultural</TabsTrigger>
               <TabsTrigger value="adventure">Adventure</TabsTrigger>
               <TabsTrigger value="luxury">Luxury</TabsTrigger>
+              <TabsTrigger value="family">Family</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -100,17 +104,22 @@ export default function PackageSelection({ packages, selectedPackages, onPackage
               <h3 className="font-semibold">{pkg.title}</h3>
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <MapPin className="h-3.5 w-3.5" />
-                <span>{pkg.location}</span>
+                <span>{pkg.destination}</span>
               </div>
 
               <div className="mt-2 flex flex-wrap gap-2">
-                <Badge variant="outline" className="bg-blue-50">
-                  <Calendar className="mr-1 h-3 w-3" />
-                  {pkg.duration} nights
-                </Badge>
-                <Badge variant="outline" className="bg-teal-50">
-                  {pkg.type.charAt(0).toUpperCase() + pkg.type.slice(1)}
-                </Badge>
+                {pkg.duration && (
+                  <Badge variant="outline" className="bg-blue-50">
+                    <Calendar className="mr-1 h-3 w-3" />
+                    {pkg.duration}
+                  </Badge>
+                )}
+                {pkg.packageTypes &&
+                  pkg.packageTypes.map((type: string) => (
+                    <Badge key={type} variant="outline" className="bg-teal-50">
+                      {type}
+                    </Badge>
+                  ))}
               </div>
 
               <div className="mt-3 flex items-center justify-between">
@@ -119,7 +128,7 @@ export default function PackageSelection({ packages, selectedPackages, onPackage
                   <span className="font-medium">{pkg.rating}</span>
                   <span className="text-xs text-muted-foreground">({pkg.reviews})</span>
                 </div>
-                <div className="text-lg font-bold text-green-600">${pkg.price}</div>
+                <div className="text-lg font-bold text-green-600">${pkg.totalPrice || pkg.price}</div>
               </div>
             </CardContent>
           </Card>
